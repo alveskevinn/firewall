@@ -17,7 +17,6 @@ import {
   Heading,
   Divider,
   Button,
-  useToast,
   Card,
   CardBody,
   SimpleGrid,
@@ -151,7 +150,6 @@ const FortinetSizingQuestionnairePart2: React.FC = () => {
     ],
   })
 
-  const toast = useToast()
 
   const concentradorOptions = [
     "Firewall",
@@ -164,16 +162,7 @@ const FortinetSizingQuestionnairePart2: React.FC = () => {
     "Default GW de todas as VLANs",
   ]
 
-  const handleSubmit = () => {
-    console.log("Dados do questionário (Parte 2):", formData)
-    toast({
-      title: "Questionário enviado!",
-      description: "Os dados da segunda parte foram coletados com sucesso.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    })
-  }
+
 
   const handleReset = () => {
     setFormData({

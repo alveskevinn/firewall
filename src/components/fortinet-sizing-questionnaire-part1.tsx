@@ -104,18 +104,6 @@ const FortinetSizingQuestionnaire: React.FC = () => {
     "Identificação de dispositivo QoS/Traffic Shaping",
     "Integração com IaaS / nuvens públicas",
   ]
-
-  const handleSubmit = () => {
-    console.log("Dados do questionário:", formData)
-    toast({
-      title: "Questionário enviado!",
-      description: "Os dados foram coletados com sucesso.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    })
-  }
-
   const handleReset = () => {
     setFormData({
       cnpj: "",
@@ -135,6 +123,7 @@ const FortinetSizingQuestionnaire: React.FC = () => {
       controlePostura: "",
       volumeDispositivos: 0,
       observacoes: "",
+      responsavel: "",
     })
     toast({
       title: "Formulário limpo!",

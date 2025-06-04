@@ -17,7 +17,6 @@ import {
   Heading,
   Divider,
   Button,
-  useToast,
   Card,
   CardBody,
   SimpleGrid,
@@ -111,7 +110,6 @@ const FortinetSizingQuestionnairePart3: React.FC = () => {
     quantidadeFortiGates: 0
   })
 
-  const toast = useToast()
 
   const funcionalidadesAdicionaisOptions = ["Filtro Web", "SD-WAN", "Inspeção SSL"]
 
@@ -135,16 +133,7 @@ const FortinetSizingQuestionnairePart3: React.FC = () => {
     "Não",
   ]
 
-  const handleSubmit = () => {
-    console.log("Dados do questionário (Parte 3):", formData)
-    toast({
-      title: "Questionário finalizado!",
-      description: "Todos os dados foram coletados com sucesso.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    })
-  }
+ 
 
   const handleReset = () => {
     setFormData({

@@ -41,6 +41,7 @@ const CompleteFortinetQuestionnaireFinal: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0)
   const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure()
+  // @ts-expect-error ...
   const [isCompleted, setIsCompleted] = useState(false)
 
   const steps = [
