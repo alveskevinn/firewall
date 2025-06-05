@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useRef } from "react"
+import axios from "axios"
 import {
   Box,
   VStack,
@@ -11,8 +12,6 @@ import {
   useToast,
   Card,
   CardBody,
-  Heading,
-  Progress,
   Tabs,
   TabList,
   TabPanels,
@@ -28,33 +27,54 @@ import {
   useDisclosure,
   Badge,
   Flex,
-  IconButton,
-  Tooltip,
 } from "@chakra-ui/react"
-import { Download, FileJson, FileIcon as FilePdf, Save, CheckCircle2 } from "lucide-react"
+import { Download, FileIcon as FilePdf,  CheckCircle2 } from "lucide-react"
 import FortinetSizingQuestionnaire from "./fortinet-sizing-questionnaire-part1"
+import type { QuestionnairePart1Ref } from "./fortinet-sizing-questionnaire-part1"
 import FortinetSizingQuestionnairePart2 from "./fortinet-sizing-questionnaire-part2"
+import type { QuestionnairePart2Ref } from "./fortinet-sizing-questionnaire-part2"
 import FortinetSizingQuestionnairePart3 from "./fortinet-sizing-questionnaire-part3"
+import type { QuestionnairePart3Ref } from "./fortinet-sizing-questionnaire-part3"
 import FortinetSizingQuestionnairePart4 from "./fortinet-sizing-questionnaire-part4"
+import type { QuestionnairePart4Ref } from "./fortinet-sizing-questionnaire-part4"
 
-const CompleteFortinetQuestionnaireFinal: React.FC = () => {
+interface Step {
+  title: string
+  description: string
+}
+
+interface CompleteFortinetQuestionnaireFinalProps {
+  title?: string
+  steps?: Step[]
+  onComplete?: (data: any) => Promise<void>
+  onExportJSON?: (data: any) => void
+  onExportPDF?: () => void
+  onSaveDraft?: (data: any) => void
+}
+
+const CompleteFortinetQuestionnaireFinal: React.FC<CompleteFortinetQuestionnaireFinalProps> = ({
+  steps = [
+    { title: "Parte 1", description: "" },
+    { title: "Parte 2", description: "" },
+    { title: "Parte 3", description: "" },
+    { title: "Parte 4", description: "" },
+  ],
+  onComplete,
+  onExportJSON,
+  onExportPDF,
+}) => {
   const [currentStep, setCurrentStep] = useState(0)
   const toast = useToast()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  // @ts-expect-error ...
-  const [isCompleted, setIsCompleted] = useState(false)
-
-  const steps = [
-    { title: "Informações Básicas", description: "Questões 1-8" },
-    { title: "Especificações Técnicas", description: "Questões 9-17" },
-    { title: "Análise e FortiAnalyzer", description: "Questões 18-28" },
-    { title: "Informações Adicionais", description: "Questões 29-32" },
-  ]
+  
+  const part1Ref = useRef<QuestionnairePart1Ref>(null)
+  const part2Ref = useRef<QuestionnairePart2Ref>(null)
+  const part3Ref = useRef<QuestionnairePart3Ref>(null)
+  const part4Ref = useRef<QuestionnairePart4Ref>(null)
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1)
-     
     }
   }
 
@@ -64,23 +84,68 @@ const CompleteFortinetQuestionnaireFinal: React.FC = () => {
     }
   }
 
-  const handleComplete = () => {
-    setIsCompleted(true)
-    toast({
-      title: "Questionário Completo!",
-      description: "Todos os dados foram coletados com sucesso.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-      icon: <CheckCircle2 />,
-    })
-    onOpen()
+  const handleComplete = async () => {
+    try {
+      const formData = {
+        part1: part1Ref.current?.formData,
+        part2: part2Ref.current?.formData,
+        part3: part3Ref.current?.formData,
+        part4: part4Ref.current?.formData,
+      }
+
+      if (onComplete) {
+        await onComplete(formData)
+      } else {
+        await axios.post('/api/questionnaire', formData)
+      }
+
+      toast({
+        title: "Sucesso!",
+        description: "Dados enviados com sucesso.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        icon: <CheckCircle2 />,
+      })
+      onOpen()
+    } catch (error: unknown) {
+      console.error('Error submitting form:', error)
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao enviar os dados.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      })
+    }
   }
 
   const handleExportJSON = () => {
+    const formData = {
+      part1: part1Ref.current?.formData,
+      part2: part2Ref.current?.formData,
+      part3: part3Ref.current?.formData,
+      part4: part4Ref.current?.formData,
+    }
+    
+    if (onExportJSON) {
+      onExportJSON(formData)
+    } else {
+      const jsonString = JSON.stringify(formData, null, 2)
+      const blob = new Blob([jsonString], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'questionario.json'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    }
+
     toast({
-      title: "Exportando dados",
-      description: "Os dados foram exportados em formato JSON",
+      title: "Exportando",
+      description: "Dados exportados em formato JSON",
       status: "info",
       duration: 2000,
       isClosable: true,
@@ -88,37 +153,54 @@ const CompleteFortinetQuestionnaireFinal: React.FC = () => {
   }
 
   const handleExportPDF = () => {
+    if (onExportPDF) {
+      onExportPDF()
+    }
+    
     toast({
       title: "Gerando PDF",
-      description: "O PDF do questionário está sendo gerado",
+      description: "PDF está sendo gerado",
       status: "info",
       duration: 2000,
       isClosable: true,
     })
   }
 
-  const handleSaveDraft = () => {
-    toast({
-      title: "Rascunho salvo",
-      description: "Seu progresso foi salvo com sucesso",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    })
-  }
+  // const handleSaveDraft = () => {
+  //   const formData = {
+  //     part1: part1Ref.current?.formData,
+  //     part2: part2Ref.current?.formData,
+  //     part3: part3Ref.current?.formData,
+  //     part4: part4Ref.current?.formData,
+  //   }
+    
+  //   if (onSaveDraft) {
+  //     onSaveDraft(formData)
+  //   } else {
+  //     localStorage.setItem('questionnaireDraft', JSON.stringify(formData))
+  //   }
+    
+  //   toast({
+  //     title: "Salvo",
+  //     description: "Progresso salvo com sucesso",
+  //     status: "success",
+  //     duration: 2000,
+  //     isClosable: true,
+  //   })
+  // }
 
-  const progressPercentage = ((currentStep + 1) / steps.length) * 100
+  // const progressPercentage = ((currentStep + 1) / steps.length) * 100
 
   return (
     <Box maxW="6xl" mx="auto" p={6} bg="gray.50" minH="100vh">
-      <Card mb={6}>
+      {/* <Card mb={6}>
         <CardBody>
           <VStack spacing={4}>
             <Heading size="lg" color="blue.600" textAlign="center">
-              Questionário Completo de Sizing - Fortinet
+              {title}
             </Heading>
             <Text textAlign="center" color="gray.600">
-              {steps[currentStep].title} - {steps[currentStep].description}
+              {steps[currentStep].title} {steps[currentStep].description && `- ${steps[currentStep].description}`}
             </Text>
             <Box w="100%" maxW="md">
               <Progress value={progressPercentage} colorScheme="blue" size="lg" borderRadius="md" />
@@ -160,7 +242,7 @@ const CompleteFortinetQuestionnaireFinal: React.FC = () => {
             </HStack>
           </VStack>
         </CardBody>
-      </Card>
+      </Card> */}
 
       <Tabs index={currentStep} onChange={setCurrentStep} variant="enclosed-colored" colorScheme="blue">
         <TabList>
@@ -178,16 +260,16 @@ const CompleteFortinetQuestionnaireFinal: React.FC = () => {
 
         <TabPanels>
           <TabPanel p={0} pt={4}>
-            <FortinetSizingQuestionnaire />
+            <FortinetSizingQuestionnaire ref={part1Ref} />
           </TabPanel>
           <TabPanel p={0} pt={4}>
-            <FortinetSizingQuestionnairePart2 />
+            <FortinetSizingQuestionnairePart2 ref={part2Ref} />
           </TabPanel>
           <TabPanel p={0} pt={4}>
-            <FortinetSizingQuestionnairePart3 />
+            <FortinetSizingQuestionnairePart3 ref={part3Ref} />
           </TabPanel>
           <TabPanel p={0} pt={4}>
-            <FortinetSizingQuestionnairePart4 />
+            <FortinetSizingQuestionnairePart4 ref={part4Ref} />
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -214,18 +296,17 @@ const CompleteFortinetQuestionnaireFinal: React.FC = () => {
         </CardBody>
       </Card>
 
-      {/* Modal de conclusão */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader bg="green.500" color="white">
-            Questionário Concluído com Sucesso!
+            Concluído com Sucesso!
           </ModalHeader>
           <ModalCloseButton color="white" />
           <ModalBody py={6}>
             <VStack spacing={4} align="stretch">
               <Text>
-                Obrigado por preencher o Questionário de Sizing da Fortinet. Todos os dados foram coletados com sucesso.
+                Todos os dados foram coletados com sucesso.
               </Text>
               <Text>O que você gostaria de fazer agora?</Text>
 

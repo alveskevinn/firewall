@@ -1,7 +1,7 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+
+import { useState, forwardRef, useImperativeHandle } from "react"
 import {
   Box,
   VStack,
@@ -97,9 +97,13 @@ interface QuestionnairePartTwoData {
   papelConcentrador: string[]
 }
 
-const FortinetSizingQuestionnairePart2: React.FC = () => {
+export interface QuestionnairePart2Ref {
+  formData: QuestionnairePartTwoData
+}
+
+const FortinetSizingQuestionnairePart2 = forwardRef<QuestionnairePart2Ref>((_, ref) => {
   const [formData, setFormData] = useState<QuestionnairePartTwoData>({
-    ngfwMultiplosContextos: "não",
+    ngfwMultiplosContextos: "",
     maxVDOMs: 0,
     interfaces: {
       cobreGE: 0,
@@ -108,17 +112,17 @@ const FortinetSizingQuestionnairePart2: React.FC = () => {
       ge40: 0,
       outras: "",
     },
-    altaDisponibilidade: "sim",
-    tipoHA: "A/A, A/P, Virtual Cluster",
-    redundanciaEnergia: "não",
+    altaDisponibilidade: "",
+    tipoHA: "",
+    redundanciaEnergia: "",
     ambiente: {
-      usuariosInternos: 120,
-      usuariosExternos: 30,
-      servidoresProtegidos: 20,
-      conexoesConcorrentes: 8000,
-      novasConexoesPorSegundo: 80,
-      usuariosIPSecConcorrentes: 1,
-      usuariosSSLVPNConcorrentes: 20,
+      usuariosInternos: 0,
+      usuariosExternos: 0,
+      servidoresProtegidos: 0,
+      conexoesConcorrentes: 0,
+      novasConexoesPorSegundo: 0,
+      usuariosIPSecConcorrentes: 0,
+      usuariosSSLVPNConcorrentes: 0,
     },
     desempenhoMinimo: {
       fwThroughput: "",
@@ -127,8 +131,8 @@ const FortinetSizingQuestionnairePart2: React.FC = () => {
       ipsThroughput: "",
     },
     bandaInternet: {
-      dataCenter: "120 Mbps",
-      link1: "100 Mbps",
+      dataCenter: "",
+      link1: "",
       link2: "",
       link3: "",
       outros: "",
@@ -140,16 +144,12 @@ const FortinetSizingQuestionnairePart2: React.FC = () => {
       streamingVoip: { porcentagem: 0, tipoSeguranca: "" },
       outrosRDP: { porcentagem: 0, tipoSeguranca: "" },
     },
-    papelConcentrador: [
-      "Firewall",
-      "IPSec VPN",
-      "SSL VPN",
-      "IDS/IPS",
-      "Controle de Aplicação",
-      "Default GW de todas as VLANs",
-    ],
+    papelConcentrador: [],
   })
 
+  useImperativeHandle(ref, () => ({
+    formData
+  }))
 
   const concentradorOptions = [
     "Firewall",
@@ -161,8 +161,6 @@ const FortinetSizingQuestionnairePart2: React.FC = () => {
     "Controle de Aplicação",
     "Default GW de todas as VLANs",
   ]
-
-
 
   const handleReset = () => {
     setFormData({
@@ -1008,6 +1006,6 @@ const FortinetSizingQuestionnairePart2: React.FC = () => {
       </Card>
     </Box>
   )
-}
+})
 
 export default FortinetSizingQuestionnairePart2

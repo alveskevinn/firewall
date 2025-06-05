@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import { useState, forwardRef, useImperativeHandle } from "react"
 import {
   Box,
   VStack,
@@ -76,9 +75,13 @@ interface QuestionnairePartThreeData {
   quantidadeFortiGates: number
 }
 
-const FortinetSizingQuestionnairePart3: React.FC = () => {
+export interface QuestionnairePart3Ref {
+  formData: QuestionnairePartThreeData
+}
+
+const FortinetSizingQuestionnairePart3 = forwardRef<QuestionnairePart3Ref>((_, ref) => {
   const [formData, setFormData] = useState<QuestionnairePartThreeData>({
-    funcionalidadesAdicionais: ["Filtro Web", "SD-WAN", "Inspeção SSL"],
+    funcionalidadesAdicionais: [],
     outros: "",
     controleTrafegoVLAN: "",
     segmentacaoInterna: {
@@ -86,21 +89,12 @@ const FortinetSizingQuestionnairePart3: React.FC = () => {
       volumeSessoes: "",
     },
     solucaoFirewallAtual: "",
-    funcionalidadesHabilitadas: [
-      "Firewall",
-      "Filtro Web",
-      "IPSec VPN",
-      "SSL VPN",
-      "IDS/IPS",
-      "SD-WAN",
-      "Controle de Aplicação",
-      "Default GW de todas as VLANs",
-    ],
+    funcionalidadesHabilitadas: [],
     outrosFuncionalidades: "",
-    atendimentoDemanda: "sim_ressalvas",
+    atendimentoDemanda: "",
     previsaoCrescimento: "",
-    tempoSuporteContrato: "36",
-    necessidadeSolucaoLog: "sim",
+    tempoSuporteContrato: "",
+    necessidadeSolucaoLog: "",
     retencaoLogs: {
       tempoArmazenamento: "",
       tempoDadosAnaliticos: "",
@@ -110,6 +104,9 @@ const FortinetSizingQuestionnairePart3: React.FC = () => {
     quantidadeFortiGates: 0
   })
 
+  useImperativeHandle(ref, () => ({
+    formData
+  }))
 
   const funcionalidadesAdicionaisOptions = ["Filtro Web", "SD-WAN", "Inspeção SSL"]
 
@@ -132,8 +129,6 @@ const FortinetSizingQuestionnairePart3: React.FC = () => {
     "Sim, por meio de Firewall dedicado",
     "Não",
   ]
-
- 
 
   const handleReset = () => {
     setFormData({
@@ -521,6 +516,6 @@ const FortinetSizingQuestionnairePart3: React.FC = () => {
       </Card>
     </Box>
   )
-}
+})
 
 export default FortinetSizingQuestionnairePart3

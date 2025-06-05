@@ -1,7 +1,7 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+
+import { useState, forwardRef, useImperativeHandle } from "react"
 import {
   Box,
   VStack,
@@ -50,27 +50,35 @@ interface QuestionnaireData {
   responsavel: string
 }
 
-const FortinetSizingQuestionnaire: React.FC = () => {
+export interface QuestionnairePart1Ref {
+  formData: QuestionnaireData
+}
+
+const FortinetSizingQuestionnaire = forwardRef<QuestionnairePart1Ref>((_, ref) => {
   const [formData, setFormData] = useState<QuestionnaireData>({
-    cnpj: "1234567890",
-    unidade: "SEDE",
-    funcionalidadesSeguranca: ["Firewall", "IPSec VPN", "SSL VPN", "IDS/IPS", "Inspeção SSL", "Controle de Aplicação"],
-    servicosAdicionais: ["SD-WAN", "Logging & Reporting", "Token para MFA", "Integração com IaaS / nuvens públicas"],
-    singleSignOn: "sim",
-    maxUsuariosAD: 200,
-    roteamentoDinamico: "não",
+    cnpj: "",
+    unidade: "",
+    funcionalidadesSeguranca: [],
+    servicosAdicionais: [],
+    singleSignOn: "",
+    maxUsuariosAD: 0,
+    roteamentoDinamico: "",
     protocolosRoteamento: "",
-    vpnSiteToSite: "sim",
+    vpnSiteToSite: "",
     maxPeerSites: 0,
-    sslVpn: "sim",
+    sslVpn: "",
     maxUsuariosSslVpn: 0,
-    duploFatorVpn: "sim",
+    duploFatorVpn: "",
     volumeUsuariosVpn: 0,
     controlePostura: "",
     volumeDispositivos: 0,
     observacoes: "",
     responsavel: "",
   })
+
+  useImperativeHandle(ref, () => ({
+    formData
+  }))
 
   const toast = useToast()
 
@@ -104,6 +112,7 @@ const FortinetSizingQuestionnaire: React.FC = () => {
     "Identificação de dispositivo QoS/Traffic Shaping",
     "Integração com IaaS / nuvens públicas",
   ]
+
   const handleReset = () => {
     setFormData({
       cnpj: "",
@@ -455,6 +464,6 @@ const FortinetSizingQuestionnaire: React.FC = () => {
       </Card>
     </Box>
   )
-}
+})
 
 export default FortinetSizingQuestionnaire

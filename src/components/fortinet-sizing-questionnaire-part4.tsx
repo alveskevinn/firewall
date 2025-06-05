@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import { useState, forwardRef, useImperativeHandle } from "react"
 import {
   Box,
   VStack,
@@ -39,7 +38,11 @@ interface QuestionnairePartFourData {
   }
 }
 
-const FortinetSizingQuestionnairePart4: React.FC = () => {
+export interface QuestionnairePart4Ref {
+  formData: QuestionnairePartFourData
+}
+
+const FortinetSizingQuestionnairePart4 = forwardRef<QuestionnairePart4Ref>((_, ref) => {
   const [formData, setFormData] = useState<QuestionnairePartFourData>({
     quantidadeFortiGates: 0,
     tempoSLA: "",
@@ -49,6 +52,10 @@ const FortinetSizingQuestionnairePart4: React.FC = () => {
       concurrentConnections: "",
     },
   })
+
+  useImperativeHandle(ref, () => ({
+    formData
+  }))
 
   const handleReset = () => {
     setFormData({
@@ -173,6 +180,6 @@ const FortinetSizingQuestionnairePart4: React.FC = () => {
       </Card>
     </Box>
   )
-}
+})
 
 export default FortinetSizingQuestionnairePart4 
